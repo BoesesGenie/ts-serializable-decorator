@@ -1,0 +1,17 @@
+{
+  "name": "decorators",
+  "version": "1.0.0",
+  "description": "decorators",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "keywords": [
+    "decorator"
+  ],
+  "author": "k.kharlamow@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}
