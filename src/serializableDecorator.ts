@@ -8,11 +8,9 @@ export function serializable(...propsToExclude: string[]) {
 
         return Object.assign(this, {
           serialize() {
-            let result: any = {};
-
             // iterable object case
             if (typeof this[Symbol.iterator] === 'function') {
-              result = [];
+              const result = [];
 
               for (let value of this) {
                 if (!(value instanceof Serializable)) {
@@ -24,6 +22,8 @@ export function serializable(...propsToExclude: string[]) {
 
               return result;
             }
+
+            const result = {};
 
             Object.keys(this).forEach((key) => {
               if (typeof this[key] === 'function'
