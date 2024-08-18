@@ -6,71 +6,63 @@ export function serializable(...propsToExclude: string[]) {
       constructor(...args) {
         super(...args);
 
-        return new Proxy(this, {
-          get(target, prop) {
-            if (prop !== 'serialize') {
-              return target[prop];
+        return Object.assign(this, {
+          serialize() {
+            let result: any = {};
+
+            // iterable object case
+            if (typeof this[Symbol.iterator] === 'function') {
+              result = [];
+
+              for (let value of this) {
+                if (!(value instanceof Serializable)) {
+                  continue;
+                }
+
+                result.push(value.serialize());
+              }
+
+              return result;
             }
 
-            return () => {
-              let result: any = {};
-
-              // iterable object case
-              if (typeof target[Symbol.iterator] === 'function'
-                && typeof target !== 'string'
+            Object.keys(this).forEach((key) => {
+              if (typeof this[key] === 'function'
+                || propsToExclude.includes(key)
+                || (typeof this[key] === 'object'
+                  && this[key] !== null
+                  && !(this[key] instanceof Serializable))
               ) {
-                result = [];
+                return;
+              }
 
-                for (let value of target as unknown as Iterable<any>) {
+              if (typeof this[key] === 'object'
+                && this[key] !== null
+                && typeof this[key][Symbol.iterator] === 'function'
+                && typeof this[key] !== 'string'
+              ) {
+                result[key] = [];
+
+                for (let value of this[key]) {
                   if (!(value instanceof Serializable)) {
                     continue;
                   }
 
-                  result.push(value.serialize());
+                  result[key].push(value.serialize());
                 }
 
-                return result;
+                return;
               }
 
-              Object.keys(target).forEach((key) => {
-                if (typeof target[key] === 'function'
-                  || propsToExclude.includes(key)
-                  || (typeof target[key] === 'object'
-                    && target[key] !== null
-                    && !(target[key] instanceof Serializable))
-                ) {
-                  return;
-                }
+              if (this[key] instanceof Serializable) {
+                result[key] = this[key].serialize();
 
-                if (typeof target[key] === 'object'
-                  && target[key] !== null
-                  && typeof target[key][Symbol.iterator] === 'function'
-                  && typeof target[key] !== 'string'
-                ) {
-                  result[key] = [];
+                return;
+              }
 
-                  for (let value of target[key]) {
-                    if (!(value instanceof Serializable)) {
-                      continue;
-                    }
+              result[key] = this[key];
+            })
 
-                    result[key].push(value.serialize());
-                  }
-
-                  return;
-                }
-
-                if (target[key] instanceof Serializable) {
-                  result[key] = target[key].serialize();
-
-                  return;
-                }
-
-                result[key] = target[key];
-              })
-
-              return result;
-            };
+            return result;
           }
         });
       }

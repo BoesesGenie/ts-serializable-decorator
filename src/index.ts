@@ -1,4 +1,4 @@
-import {Street, Vehicle, VehicleCollection, VehicleType} from './Vehicle';
+import { Street, Vehicle, VehicleCollection, VehicleType } from './Vehicle';
 
 const car = new Vehicle(
   '8247b4f6-13cc-49f3-aac4-e828a2f19c6e',
